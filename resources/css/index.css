@@ -1,0 +1,13 @@
+:root{
+    --body-margin: 0;
+    --canvas-size: 100%;
+}
+
+body{
+   margin: var(--body-margin);
+}
+
+canvas{
+    height: var(--canvas-size);
+    width: var(--canvas-size);
+}
