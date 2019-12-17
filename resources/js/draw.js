@@ -321,7 +321,7 @@ DrawText.prototype = {
         // droid sans	bold	normal	../../node_modules/three/examples/fonts/droid/droid_sans_bold.typeface.json
         // droid serif	normal	normal	../../node_modules/three/examples/fonts/droid/droid_serif_regular.typeface.json
         // droid serif	bold	normal	../../node_modules/three/examples/fonts/droid/droid_serif_bold.typeface.json
-        loader.load('../../node_modules/three/examples/fonts/helvetiker_regular.typeface.json', (response) => {
+        loader.load('../resources/fonts/helvetiker_regular.typeface.json', (response) => {
             this.font = response;
             this.refreshText();
         });
