@@ -1,0 +1,26 @@
+{
+  "name": "amorcui.github.io",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amorCui/amorcui.github.io.git"
+  },
+  "author": "amor",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amorCui/amorcui.github.io/issues"
+  },
+  "homepage": "https://github.com/amorCui/amorcui.github.io#readme",
+  "dependencies": {
+    "cannon": "^0.6.2",
+    "grunt": "^1.0.4",
+    "physijs-webpack": "^0.1.4",
+    "three": "^0.111.0",
+    "three.js": "^0.77.1"
+  }
+}
