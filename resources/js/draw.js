@@ -12,7 +12,7 @@ DrawText.prototype = {
     camera: null,
     renderer: null,
     textMeshs: [],
-    cube:null,
+    cubes:[],
     ground:null,
     debug:null,
     options: {
@@ -65,7 +65,7 @@ DrawText.prototype = {
         this.initRenderer();
 
         this.textMeshs = new THREE.Group();
-        this.textMeshs.position.set(4,2,0);
+        this.textMeshs.position.set(0,2,0);
         this.scene.add(this.textMeshs);
 
         this.createPlane();
@@ -73,7 +73,7 @@ DrawText.prototype = {
         this.createCube();
 
         //辅助工具
-        this.initHelper();
+        // this.initHelper();
 
         // var geometry1 = new THREE.BoxGeometry( 2, 1, 1 );
         // var material1 = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
@@ -124,7 +124,7 @@ DrawText.prototype = {
     initCamera: function () {
         //  相机视角，缩放因子
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
-        this.camera.position.set(2, 2, 5);
+        this.camera.position.set(0, 2, 5);
     },
     initLight: function () {
         if(!this.light){
@@ -137,7 +137,6 @@ DrawText.prototype = {
         
     },
     initHelper:function(){
-        //辅助工具
         let axisHelper = new THREE.AxisHelper(10);
         let cameraHelper = new THREE.CameraHelper(this.camera);
         // let lightHelper = new THREE.DirectionalLightHelper(0xffffff);
@@ -154,12 +153,15 @@ DrawText.prototype = {
 
         this.world.step(1 / 60);
 
-        if(this.cube){
-            this.cube.shape.position.copy(this.cube.physics.position);
-            this.cube.shape.quaternion.copy(this.cube.physics.quaternion);
+        if(this.cubes.length > 0){
+            for(var cube of this.cubes){
+                cube.shape.position.copy(cube.physics.position);
+                cube.shape.quaternion.copy(cube.physics.quaternion);
+            }
         }
 
-        this.debug.update();
+        //物体辅助线
+        // this.debug.update();
 
         this.textMeshs.rotation.y += 0.01;
 
@@ -167,43 +169,175 @@ DrawText.prototype = {
     },
     createCube: function () {
         var size = 0.2;
-        var color = 0x00ff00;
+        var color = 0xCC6633;
+        var offsetZ = 8;
+        var cubepositions= [
+            [-1 - 15 ,1/2 ,0 - offsetZ],
+            [0 - 15 ,1/2 ,0 - offsetZ],
+            [1 - 15 ,1/2 ,0 - offsetZ],
+            [-2 - 15 ,1/2 ,1 - offsetZ],
+            [-1 - 15 ,1/2 ,1 - offsetZ],
+            [1 - 15 ,1/2 ,1 - offsetZ],
+            [2 - 15 ,1/2 ,1 - offsetZ],
+            [-3 - 15 ,1/2 ,2 - offsetZ],
+            [3 - 15 ,1/2 ,2 - offsetZ],
+            [-2 - 15 ,1/2 ,2 - offsetZ],
+            [2 - 15 ,1/2 ,2 - offsetZ],
+            [-3 - 15 ,1/2 ,3 - offsetZ],
+            [-2 - 15 ,1/2 ,3 - offsetZ],
+            [2 - 15 ,1/2 ,3 - offsetZ],
+            [3 - 15 ,1/2 ,3 - offsetZ],
+            [-3 - 15 ,1/2 ,4 - offsetZ],
+            [-2 - 15 ,1/2 ,4 - offsetZ],
+            [-1 - 15 ,1/2 ,4 - offsetZ],
+            [0 - 15 ,1/2 ,4 - offsetZ],
+            [1 - 15 ,1/2 ,4 - offsetZ],
+            [2 - 15 ,1/2 ,4 - offsetZ],
+            [3 - 15 ,1/2 ,4 - offsetZ],
+            [-3 - 15 ,1/2 ,5 - offsetZ],
+            [-2 - 15 ,1/2 ,5 - offsetZ],
+            [2 - 15 ,1/2 ,5 - offsetZ],
+            [3 - 15 ,1/2 ,5 - offsetZ],
+            [-3 - 15 ,1/2 ,6 - offsetZ],
+            [-2 - 15 ,1/2 ,6 - offsetZ],
+            [2 - 15 ,1/2 ,6 - offsetZ],
+            [3 - 15 ,1/2 ,6 - offsetZ],
 
-        //物理
-        var shape = new CANNON.Box(new CANNON.Vec3(size / 2, size / 2 , size / 2)); // 形状
-        var shapeMaterial = new CANNON.Material();  // 材质
-        var shapeBody = new CANNON.Body({ // 刚体
-            mass: 5,    //质量
-            material: shapeMaterial,
-            shape:shape
-        });
-        shapeBody.position.set(0, size / 2 + 5, 0);
+            [-3 - 5 ,1/2 , 0 - offsetZ],
+            [-2 - 5 ,1/2 , 0 - offsetZ],
+            [2 - 5 ,1/2 , 0 - offsetZ],
+            [3 - 5 ,1/2 , 0 - offsetZ],
+            [-3 - 5 ,1/2 , 1 - offsetZ],
+            [-2 - 5 ,1/2 , 1 - offsetZ],
+            [-1 - 5 ,1/2 , 1 - offsetZ],
+            [1 - 5 ,1/2 , 1 - offsetZ],
+            [2 - 5 ,1/2 , 1 - offsetZ],
+            [3 - 5 ,1/2 , 1 - offsetZ],
+            [-3 - 5 ,1/2 , 2 - offsetZ],
+            [-2 - 5 ,1/2 , 2 - offsetZ],
+            [-1 - 5 ,1/2 , 2 - offsetZ],
+            [0 - 5 ,1/2 , 2 - offsetZ],
+            [1 - 5 ,1/2 , 2 - offsetZ],
+            [2 - 5 ,1/2 , 2 - offsetZ],
+            [3 - 5 ,1/2 , 2 - offsetZ],
+            [-3 - 5 ,1/2 , 3 - offsetZ],
+            [-2 - 5 ,1/2 , 3 - offsetZ],
+            [0 - 5 ,1/2 , 3 - offsetZ],
+            [2 - 5 ,1/2 , 3 - offsetZ],
+            [3 - 5 ,1/2 , 3 - offsetZ],
+            [-3 - 5 ,1/2 , 4 - offsetZ],
+            [-2 - 5 ,1/2 , 4 - offsetZ],
+            [2 - 5 ,1/2 , 4 - offsetZ],
+            [3 - 5 ,1/2 , 4 - offsetZ],
+            [-3 - 5 ,1/2 , 5 - offsetZ],
+            [-2 - 5 ,1/2 , 5 - offsetZ],
+            [2 - 5 ,1/2 , 5 - offsetZ],
+            [3 - 5 ,1/2 , 5 - offsetZ],
+            [-3 - 5 ,1/2 , 6 - offsetZ],
+            [-2 - 5 ,1/2 , 6 - offsetZ],
+            [2 - 5 ,1/2 , 6 - offsetZ],
+            [3 - 5 ,1/2 , 6 - offsetZ],
+
+            [-1 + 5 ,1/2 ,0 - offsetZ],
+            [0 + 5 ,1/2 ,0 - offsetZ],
+            [1 + 5 ,1/2 ,0 - offsetZ],
+            [-2 + 5 ,1/2 ,1 - offsetZ],
+            [-1 + 5 ,1/2 ,1 - offsetZ],
+            [1 + 5 ,1/2 ,1 - offsetZ],
+            [2 + 5 ,1/2 ,1 - offsetZ],
+            [-3 + 5 ,1/2 ,2 - offsetZ],
+            [-2 + 5 ,1/2 ,2 - offsetZ],
+            [2 + 5 ,1/2 ,2 - offsetZ],
+            [3 + 5 ,1/2 ,2 - offsetZ],
+            [-3 + 5 ,1/2 ,3 - offsetZ],
+            [-2 + 5 ,1/2 ,3 - offsetZ],
+            [2 + 5 ,1/2 ,3 - offsetZ],
+            [3 + 5 ,1/2 ,3 - offsetZ],
+            [-3 + 5 ,1/2 ,4 - offsetZ],
+            [-2 + 5 ,1/2 ,4 - offsetZ],
+            [2 + 5 ,1/2 ,4 - offsetZ],
+            [3 + 5 ,1/2 ,4 - offsetZ],
+            [-2 + 5 ,1/2 ,5 - offsetZ],
+            [-1 + 5 ,1/2 ,5 - offsetZ],
+            [1 + 5 ,1/2 ,5 - offsetZ],
+            [2 + 5 ,1/2 ,5 - offsetZ],
+            [-1 + 5 ,1/2 ,6 - offsetZ],
+            [0 + 5 ,1/2 ,6 - offsetZ],
+            [1 + 5 ,1/2 ,6 - offsetZ],
+
+            [-3 + 15 ,1/2 , 0 - offsetZ],
+            [-2 + 15 ,1/2 , 0 - offsetZ],
+            [-1 + 15 ,1/2 , 0 - offsetZ],
+            [0 + 15 ,1/2 , 0 - offsetZ],
+            [1 + 15 ,1/2 , 0 - offsetZ],
+            [2 + 15 ,1/2 , 0 - offsetZ],
+            [-3 + 15 ,1/2 , 1 - offsetZ],
+            [-2 + 15 ,1/2 , 1 - offsetZ],
+            [2 + 15 ,1/2 , 1 - offsetZ],
+            [3 + 15 ,1/2 , 1 - offsetZ],
+            [-3 + 15 ,1/2 , 2 - offsetZ],
+            [-2 + 15 ,1/2 , 2 - offsetZ],
+            [2 + 15 ,1/2 , 2 - offsetZ],
+            [3 + 15 ,1/2 , 2 - offsetZ],
+            [-3 + 15 ,1/2 , 3 - offsetZ],
+            [-2 + 15 ,1/2 , 3 - offsetZ],
+            [-1 + 15 ,1/2 , 3 - offsetZ],
+            [0 + 15 ,1/2 , 3 - offsetZ],
+            [1 + 15 ,1/2 , 3 - offsetZ],
+            [2 + 15 ,1/2 , 3 - offsetZ],
+            [-3 + 15 ,1/2 , 4 - offsetZ],
+            [-2 + 15 ,1/2 , 4 - offsetZ],
+            [0 + 15 ,1/2 , 4 - offsetZ],
+            [1 + 15 ,1/2 , 4 - offsetZ],
+            [-3 + 15 ,1/2 , 5 - offsetZ],
+            [-2 + 15 ,1/2 , 5 - offsetZ],
+            [1 + 15 ,1/2 , 5 - offsetZ],
+            [2 + 15 ,1/2 , 5 - offsetZ],
+            [-3 + 15 ,1/2 , 6 - offsetZ],
+            [-2 + 15 ,1/2 , 6 - offsetZ],
+            [2 + 15 ,1/2 , 6 - offsetZ],
+            [3 + 15 ,1/2 , 6 - offsetZ],
+        ];
+
+        for(var pos of cubepositions){
+            ////物理
+            var shape = new CANNON.Box(new CANNON.Vec3(size / 2, size / 2 , size / 2)); // 形状
+            var shapeMaterial = new CANNON.Material();  // 材质
+            var shapeBody = new CANNON.Body({ // 刚体
+                mass: 5,    //质量
+                material: shapeMaterial,
+                shape:shape
+            });
+            shapeBody.position.set(size * pos[0],size * pos[1], size * pos[2]);
 
 
 
-        this.world.add(shapeBody);
+            this.world.add(shapeBody);
 
-        var sphere_ground = new CANNON.ContactMaterial(this.ground.physics.material, shapeMaterial, { //  定义两个刚体相遇后会发生什么
-            friction: 1,    // 摩擦系数
-            restitution: 0.4    // 恢复系数
-        })
-        this.world.addContactMaterial(sphere_ground) // 添加到世界中
+            var sphere_ground = new CANNON.ContactMaterial(this.ground.physics.material, shapeMaterial, { //  定义两个刚体相遇后会发生什么
+                friction: 1,    // 摩擦系数
+                restitution: 0.4    // 恢复系数
+            })
+            this.world.addContactMaterial(sphere_ground) // 添加到世界中
 
-        //////
-        var geometry = new THREE.CubeGeometry(size,size,size);
-        //一种非发光材料
-        var material = new THREE.MeshLambertMaterial({ color: color });
-        var cube = new THREE.Mesh(geometry, material);
-        //告诉立方体需要投射阴影
-        cube.castShadow = true;
-        cube.position.set(0,size / 2 + 5,0);
+            //////
+            var geometry = new THREE.CubeGeometry(size,size,size);
+            //一种非发光材料
+            var material = new THREE.MeshLambertMaterial({ color: color });
+            var cube = new THREE.Mesh(geometry, material);
+            //告诉立方体需要投射阴影
+            cube.castShadow = true;
+            cube.position.set(size * pos[0],size * pos[1], size * pos[2]);
 
-        this.cube = {
-            shape:cube,
-            physics:shapeBody
-        };
-        
-        this.scene.add(cube);
+            this.cubes.push({
+                shape:cube,
+                physics:shapeBody
+            });
+            
+            this.scene.add(cube);
+        }
+
+   
     },
     createPlane:function(){
         //底部物理平面
@@ -220,7 +354,7 @@ DrawText.prototype = {
         this.world.add(groundBody)
 
 
-        //底部平面
+        ////底部平面
         var planeGeometry = new THREE.PlaneGeometry(1000,1000);
         var planeMaterial = new THREE.MeshStandardMaterial({color:0xaaaaaa});
 
@@ -280,7 +414,7 @@ DrawText.prototype = {
             textGeo.computeVertexNormals();
             textGeo = new THREE.BufferGeometry().fromGeometry(textGeo);
             var textMesh = new THREE.Mesh(textGeo, materials);
-            textMesh.position.x = index * fontSize;
+            textMesh.position.x = (index - 2) * fontSize;
             textMesh.castShadow = true;
             that.textMeshs.add(textMesh);
         });
@@ -329,6 +463,4 @@ DrawText.prototype = {
     refreshText: function () {
         this.createText(this.options.textArr,this.options.fontSize);
     }
-
-
 }
