@@ -16,7 +16,7 @@ DrawText.prototype = {
     ground:null,
     debug:null,
     options: {
-        fontSize:0.3,
+        fontSize:5,
         textArr: [
             {
                 text: 'A',
@@ -65,8 +65,11 @@ DrawText.prototype = {
         this.initRenderer();
 
         this.textMeshs = new THREE.Group();
-        this.textMeshs.position.set(0,2,0);
+        this.textMeshs.position.set(0,40,0);
         this.scene.add(this.textMeshs);
+
+        //初始化天空盒
+        this.initSkyBox();
 
         this.createPlane();
 
@@ -110,6 +113,12 @@ DrawText.prototype = {
         }else{
             this.renderer.setSize(window.innerWidth, window.innerHeight);
         }
+        // 全屏情况下：设置观察范围长宽比aspect为窗口宽高比
+        this.camera.aspect = window.innerWidth/window.innerHeight;
+        // 渲染器执行render方法的时候会读取相机对象的投影矩阵属性projectionMatrix
+        // 但是不会每渲染一帧，就通过相机的属性计算投影矩阵(节约计算资源)
+        // 如果相机的一些属性发生了变化，需要执行updateProjectionMatrix ()方法更新相机的投影矩阵
+        this.camera.updateProjectionMatrix ();
         
     },
     initScene: function () {
@@ -122,9 +131,22 @@ DrawText.prototype = {
         this.world.broadphase = new CANNON.NaiveBroadphase()
     },
     initCamera: function () {
-        //  相机视角，缩放因子
+        /**
+         * 视角
+         * 宽高比
+         * 近平面距离
+         * 远平面距离
+         */
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
-        this.camera.position.set(0, 2, 5);
+        if(this.isPC()){
+            console.log("is PC");
+            this.camera.position.set(0, 20, 50);
+        }else{
+            console.log("is not PC");
+            this.camera.position.set(0, 40, 150);
+        }
+        // this.camera.lookAt(0,0,0);
+        
     },
     initLight: function () {
         if(!this.light){
@@ -168,135 +190,135 @@ DrawText.prototype = {
         this.renderer.render(this.scene, this.camera);
     },
     createCube: function () {
-        var size = 0.2;
+        var size = 2;
         var color = 0xCC6633;
-        var offsetZ = 8;
+        var offsetZ = 15;
         var cubepositions= [
-            [-1 - 15 ,1/2 ,0 - offsetZ],
-            [0 - 15 ,1/2 ,0 - offsetZ],
-            [1 - 15 ,1/2 ,0 - offsetZ],
-            [-2 - 15 ,1/2 ,1 - offsetZ],
-            [-1 - 15 ,1/2 ,1 - offsetZ],
-            [1 - 15 ,1/2 ,1 - offsetZ],
-            [2 - 15 ,1/2 ,1 - offsetZ],
-            [-3 - 15 ,1/2 ,2 - offsetZ],
-            [3 - 15 ,1/2 ,2 - offsetZ],
-            [-2 - 15 ,1/2 ,2 - offsetZ],
-            [2 - 15 ,1/2 ,2 - offsetZ],
-            [-3 - 15 ,1/2 ,3 - offsetZ],
-            [-2 - 15 ,1/2 ,3 - offsetZ],
-            [2 - 15 ,1/2 ,3 - offsetZ],
-            [3 - 15 ,1/2 ,3 - offsetZ],
-            [-3 - 15 ,1/2 ,4 - offsetZ],
-            [-2 - 15 ,1/2 ,4 - offsetZ],
-            [-1 - 15 ,1/2 ,4 - offsetZ],
-            [0 - 15 ,1/2 ,4 - offsetZ],
-            [1 - 15 ,1/2 ,4 - offsetZ],
-            [2 - 15 ,1/2 ,4 - offsetZ],
-            [3 - 15 ,1/2 ,4 - offsetZ],
-            [-3 - 15 ,1/2 ,5 - offsetZ],
-            [-2 - 15 ,1/2 ,5 - offsetZ],
-            [2 - 15 ,1/2 ,5 - offsetZ],
-            [3 - 15 ,1/2 ,5 - offsetZ],
-            [-3 - 15 ,1/2 ,6 - offsetZ],
-            [-2 - 15 ,1/2 ,6 - offsetZ],
-            [2 - 15 ,1/2 ,6 - offsetZ],
-            [3 - 15 ,1/2 ,6 - offsetZ],
+            [-1 - 15 ,0 ,0 - offsetZ],
+            [0 - 15 ,0 ,0 - offsetZ],
+            [1 - 15 ,0 ,0 - offsetZ],
+            [-2 - 15 ,0 ,1 - offsetZ],
+            [-1 - 15 ,0 ,1 - offsetZ],
+            [1 - 15 ,0 ,1 - offsetZ],
+            [2 - 15 ,0 ,1 - offsetZ],
+            [-3 - 15 ,0 ,2 - offsetZ],
+            [3 - 15 ,0 ,2 - offsetZ],
+            [-2 - 15 ,0 ,2 - offsetZ],
+            [2 - 15 ,0 ,2 - offsetZ],
+            [-3 - 15 ,0 ,3 - offsetZ],
+            [-2 - 15 ,0 ,3 - offsetZ],
+            [2 - 15 ,0 ,3 - offsetZ],
+            [3 - 15 ,0 ,3 - offsetZ],
+            [-3 - 15 ,0 ,4 - offsetZ],
+            [-2 - 15 ,0 ,4 - offsetZ],
+            [-1 - 15 ,0 ,4 - offsetZ],
+            [0 - 15 ,0 ,4 - offsetZ],
+            [1 - 15 ,0 ,4 - offsetZ],
+            [2 - 15 ,0 ,4 - offsetZ],
+            [3 - 15 ,0 ,4 - offsetZ],
+            [-3 - 15 ,0 ,5 - offsetZ],
+            [-2 - 15 ,0 ,5 - offsetZ],
+            [2 - 15 ,0 ,5 - offsetZ],
+            [3 - 15 ,0 ,5 - offsetZ],
+            [-3 - 15 ,0 ,6 - offsetZ],
+            [-2 - 15 ,0 ,6 - offsetZ],
+            [2 - 15 ,0 ,6 - offsetZ],
+            [3 - 15 ,0 ,6 - offsetZ],
 
-            [-3 - 5 ,1/2 , 0 - offsetZ],
-            [-2 - 5 ,1/2 , 0 - offsetZ],
-            [2 - 5 ,1/2 , 0 - offsetZ],
-            [3 - 5 ,1/2 , 0 - offsetZ],
-            [-3 - 5 ,1/2 , 1 - offsetZ],
-            [-2 - 5 ,1/2 , 1 - offsetZ],
-            [-1 - 5 ,1/2 , 1 - offsetZ],
-            [1 - 5 ,1/2 , 1 - offsetZ],
-            [2 - 5 ,1/2 , 1 - offsetZ],
-            [3 - 5 ,1/2 , 1 - offsetZ],
-            [-3 - 5 ,1/2 , 2 - offsetZ],
-            [-2 - 5 ,1/2 , 2 - offsetZ],
-            [-1 - 5 ,1/2 , 2 - offsetZ],
-            [0 - 5 ,1/2 , 2 - offsetZ],
-            [1 - 5 ,1/2 , 2 - offsetZ],
-            [2 - 5 ,1/2 , 2 - offsetZ],
-            [3 - 5 ,1/2 , 2 - offsetZ],
-            [-3 - 5 ,1/2 , 3 - offsetZ],
-            [-2 - 5 ,1/2 , 3 - offsetZ],
-            [0 - 5 ,1/2 , 3 - offsetZ],
-            [2 - 5 ,1/2 , 3 - offsetZ],
-            [3 - 5 ,1/2 , 3 - offsetZ],
-            [-3 - 5 ,1/2 , 4 - offsetZ],
-            [-2 - 5 ,1/2 , 4 - offsetZ],
-            [2 - 5 ,1/2 , 4 - offsetZ],
-            [3 - 5 ,1/2 , 4 - offsetZ],
-            [-3 - 5 ,1/2 , 5 - offsetZ],
-            [-2 - 5 ,1/2 , 5 - offsetZ],
-            [2 - 5 ,1/2 , 5 - offsetZ],
-            [3 - 5 ,1/2 , 5 - offsetZ],
-            [-3 - 5 ,1/2 , 6 - offsetZ],
-            [-2 - 5 ,1/2 , 6 - offsetZ],
-            [2 - 5 ,1/2 , 6 - offsetZ],
-            [3 - 5 ,1/2 , 6 - offsetZ],
+            [-3 - 5 ,0 , 0 - offsetZ],
+            [-2 - 5 ,0 , 0 - offsetZ],
+            [2 - 5 ,0 , 0 - offsetZ],
+            [3 - 5 ,0 , 0 - offsetZ],
+            [-3 - 5 ,0 , 1 - offsetZ],
+            [-2 - 5 ,0 , 1 - offsetZ],
+            [-1 - 5 ,0 , 1 - offsetZ],
+            [1 - 5 ,0 , 1 - offsetZ],
+            [2 - 5 ,0 , 1 - offsetZ],
+            [3 - 5 ,0 , 1 - offsetZ],
+            [-3 - 5 ,0 , 2 - offsetZ],
+            [-2 - 5 ,0 , 2 - offsetZ],
+            [-1 - 5 ,0 , 2 - offsetZ],
+            [0 - 5 ,0 , 2 - offsetZ],
+            [1 - 5 ,0 , 2 - offsetZ],
+            [2 - 5 ,0 , 2 - offsetZ],
+            [3 - 5 ,0 , 2 - offsetZ],
+            [-3 - 5 ,0 , 3 - offsetZ],
+            [-2 - 5 ,0 , 3 - offsetZ],
+            [0 - 5 ,0 , 3 - offsetZ],
+            [2 - 5 ,0 , 3 - offsetZ],
+            [3 - 5 ,0 , 3 - offsetZ],
+            [-3 - 5 ,0 , 4 - offsetZ],
+            [-2 - 5 ,0 , 4 - offsetZ],
+            [2 - 5 ,0 , 4 - offsetZ],
+            [3 - 5 ,0 , 4 - offsetZ],
+            [-3 - 5 ,0 , 5 - offsetZ],
+            [-2 - 5 ,0 , 5 - offsetZ],
+            [2 - 5 ,0 , 5 - offsetZ],
+            [3 - 5 ,0 , 5 - offsetZ],
+            [-3 - 5 ,0 , 6 - offsetZ],
+            [-2 - 5 ,0 , 6 - offsetZ],
+            [2 - 5 ,0 , 6 - offsetZ],
+            [3 - 5 ,0 , 6 - offsetZ],
 
-            [-1 + 5 ,1/2 ,0 - offsetZ],
-            [0 + 5 ,1/2 ,0 - offsetZ],
-            [1 + 5 ,1/2 ,0 - offsetZ],
-            [-2 + 5 ,1/2 ,1 - offsetZ],
-            [-1 + 5 ,1/2 ,1 - offsetZ],
-            [1 + 5 ,1/2 ,1 - offsetZ],
-            [2 + 5 ,1/2 ,1 - offsetZ],
-            [-3 + 5 ,1/2 ,2 - offsetZ],
-            [-2 + 5 ,1/2 ,2 - offsetZ],
-            [2 + 5 ,1/2 ,2 - offsetZ],
-            [3 + 5 ,1/2 ,2 - offsetZ],
-            [-3 + 5 ,1/2 ,3 - offsetZ],
-            [-2 + 5 ,1/2 ,3 - offsetZ],
-            [2 + 5 ,1/2 ,3 - offsetZ],
-            [3 + 5 ,1/2 ,3 - offsetZ],
-            [-3 + 5 ,1/2 ,4 - offsetZ],
-            [-2 + 5 ,1/2 ,4 - offsetZ],
-            [2 + 5 ,1/2 ,4 - offsetZ],
-            [3 + 5 ,1/2 ,4 - offsetZ],
-            [-2 + 5 ,1/2 ,5 - offsetZ],
-            [-1 + 5 ,1/2 ,5 - offsetZ],
-            [1 + 5 ,1/2 ,5 - offsetZ],
-            [2 + 5 ,1/2 ,5 - offsetZ],
-            [-1 + 5 ,1/2 ,6 - offsetZ],
-            [0 + 5 ,1/2 ,6 - offsetZ],
-            [1 + 5 ,1/2 ,6 - offsetZ],
+            [-1 + 5 ,0 ,0 - offsetZ],
+            [0 + 5 ,0 ,0 - offsetZ],
+            [1 + 5 ,0 ,0 - offsetZ],
+            [-2 + 5 ,0 ,1 - offsetZ],
+            [-1 + 5 ,0 ,1 - offsetZ],
+            [1 + 5 ,0 ,1 - offsetZ],
+            [2 + 5 ,0 ,1 - offsetZ],
+            [-3 + 5 ,0 ,2 - offsetZ],
+            [-2 + 5 ,0 ,2 - offsetZ],
+            [2 + 5 ,0 ,2 - offsetZ],
+            [3 + 5 ,0 ,2 - offsetZ],
+            [-3 + 5 ,0 ,3 - offsetZ],
+            [-2 + 5 ,0 ,3 - offsetZ],
+            [2 + 5 ,0 ,3 - offsetZ],
+            [3 + 5 ,0 ,3 - offsetZ],
+            [-3 + 5 ,0 ,4 - offsetZ],
+            [-2 + 5 ,0 ,4 - offsetZ],
+            [2 + 5 ,0 ,4 - offsetZ],
+            [3 + 5 ,0 ,4 - offsetZ],
+            [-2 + 5 ,0 ,5 - offsetZ],
+            [-1 + 5 ,0 ,5 - offsetZ],
+            [1 + 5 ,0 ,5 - offsetZ],
+            [2 + 5 ,0 ,5 - offsetZ],
+            [-1 + 5 ,0 ,6 - offsetZ],
+            [0 + 5 ,0 ,6 - offsetZ],
+            [1 + 5 ,0 ,6 - offsetZ],
 
-            [-3 + 15 ,1/2 , 0 - offsetZ],
-            [-2 + 15 ,1/2 , 0 - offsetZ],
-            [-1 + 15 ,1/2 , 0 - offsetZ],
-            [0 + 15 ,1/2 , 0 - offsetZ],
-            [1 + 15 ,1/2 , 0 - offsetZ],
-            [2 + 15 ,1/2 , 0 - offsetZ],
-            [-3 + 15 ,1/2 , 1 - offsetZ],
-            [-2 + 15 ,1/2 , 1 - offsetZ],
-            [2 + 15 ,1/2 , 1 - offsetZ],
-            [3 + 15 ,1/2 , 1 - offsetZ],
-            [-3 + 15 ,1/2 , 2 - offsetZ],
-            [-2 + 15 ,1/2 , 2 - offsetZ],
-            [2 + 15 ,1/2 , 2 - offsetZ],
-            [3 + 15 ,1/2 , 2 - offsetZ],
-            [-3 + 15 ,1/2 , 3 - offsetZ],
-            [-2 + 15 ,1/2 , 3 - offsetZ],
-            [-1 + 15 ,1/2 , 3 - offsetZ],
-            [0 + 15 ,1/2 , 3 - offsetZ],
-            [1 + 15 ,1/2 , 3 - offsetZ],
-            [2 + 15 ,1/2 , 3 - offsetZ],
-            [-3 + 15 ,1/2 , 4 - offsetZ],
-            [-2 + 15 ,1/2 , 4 - offsetZ],
-            [0 + 15 ,1/2 , 4 - offsetZ],
-            [1 + 15 ,1/2 , 4 - offsetZ],
-            [-3 + 15 ,1/2 , 5 - offsetZ],
-            [-2 + 15 ,1/2 , 5 - offsetZ],
-            [1 + 15 ,1/2 , 5 - offsetZ],
-            [2 + 15 ,1/2 , 5 - offsetZ],
-            [-3 + 15 ,1/2 , 6 - offsetZ],
-            [-2 + 15 ,1/2 , 6 - offsetZ],
-            [2 + 15 ,1/2 , 6 - offsetZ],
-            [3 + 15 ,1/2 , 6 - offsetZ],
+            [-3 + 15 ,0 , 0 - offsetZ],
+            [-2 + 15 ,0 , 0 - offsetZ],
+            [-1 + 15 ,0 , 0 - offsetZ],
+            [0 + 15 ,0 , 0 - offsetZ],
+            [1 + 15 ,0 , 0 - offsetZ],
+            [2 + 15 ,0 , 0 - offsetZ],
+            [-3 + 15 ,0 , 1 - offsetZ],
+            [-2 + 15 ,0 , 1 - offsetZ],
+            [2 + 15 ,0 , 1 - offsetZ],
+            [3 + 15 ,0 , 1 - offsetZ],
+            [-3 + 15 ,0 , 2 - offsetZ],
+            [-2 + 15 ,0 , 2 - offsetZ],
+            [2 + 15 ,0 , 2 - offsetZ],
+            [3 + 15 ,0 , 2 - offsetZ],
+            [-3 + 15 ,0 , 3 - offsetZ],
+            [-2 + 15 ,0 , 3 - offsetZ],
+            [-1 + 15 ,0 , 3 - offsetZ],
+            [0 + 15 ,0 , 3 - offsetZ],
+            [1 + 15 ,0 , 3 - offsetZ],
+            [2 + 15 ,0 , 3 - offsetZ],
+            [-3 + 15 ,0 , 4 - offsetZ],
+            [-2 + 15 ,0 , 4 - offsetZ],
+            [0 + 15 ,0 , 4 - offsetZ],
+            [1 + 15 ,0 , 4 - offsetZ],
+            [-3 + 15 ,0 , 5 - offsetZ],
+            [-2 + 15 ,0 , 5 - offsetZ],
+            [1 + 15 ,0 , 5 - offsetZ],
+            [2 + 15 ,0 , 5 - offsetZ],
+            [-3 + 15 ,0 , 6 - offsetZ],
+            [-2 + 15 ,0 , 6 - offsetZ],
+            [2 + 15 ,0 , 6 - offsetZ],
+            [3 + 15 ,0 , 6 - offsetZ],
         ];
 
         for(var pos of cubepositions){
@@ -350,7 +372,7 @@ DrawText.prototype = {
         })
         // setFromAxisAngle 旋转 X 轴 -90 度
         groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2)
-
+        groundBody.position.set(0,-1,0);
         this.world.add(groundBody)
 
 
@@ -360,7 +382,7 @@ DrawText.prototype = {
 
         var plane = new THREE.Mesh(planeGeometry, planeMaterial);
         plane.rotation.set(-Math.PI / 2,0,0);
-        plane.position.set(0,0,0);
+        plane.position.set(0,-1,0);
 
         //告诉底部平面需要接收阴影
         plane.receiveShadow = true;
@@ -375,6 +397,45 @@ DrawText.prototype = {
         };
 
         this.scene.add(plane);
+
+
+       
+
+
+    },
+    initSkyBox: function(){
+         //设置天空盒
+         var path = "../resources/images/skys/";//设置路径
+         var directions  = ["px", "nx", "py", "ny", "pz", "nz"];//获取对象
+         var format = ".jpg";//格式
+         //创建盒子，并设置盒子的大小为( 1000, 1000, 1000 )
+         var cubeSize = 1000;
+         var skyGeometry = new THREE.BoxGeometry( cubeSize, cubeSize, cubeSize );
+         //设置盒子材质
+         var materialArray = [];
+         // for (var i = 0; i < 6; i++){
+         //     materialArray.push( new THREE.MeshBasicMaterial({
+         //         map: new THREE.TextureLoader().load( path + directions[i] + format ),//将图片纹理贴上
+         //         side: THREE.BackSide                  //镜像翻转，如果设置镜像翻转，那么只会看到黑漆漆的一片，因为你身处在盒子的内部，所以一定要设置镜像翻转
+         //     }));
+         // }
+        
+         for (var i = 0; i < 5; i++){
+            materialArray.push( new THREE.MeshBasicMaterial({
+                 map: new THREE.TextureLoader().load( path + directions[i] + format ),//将图片纹理贴上
+                 side: THREE.BackSide                  //镜像翻转，如果设置镜像翻转，那么只会看到黑漆漆的一片，因为你身处在盒子的内部，所以一定要设置镜像翻转
+            }));
+         }
+         materialArray.push(
+             new THREE.MeshBasicMaterial({
+                 map: new THREE.TextureLoader().load( '../resources/images/timg2.jpg'),//将图片纹理贴上
+                 side: THREE.BackSide                  //镜像翻转，如果设置镜像翻转，那么只会看到黑漆漆的一片，因为你身处在盒子的内部，所以一定要设置镜像翻转
+             })
+         );
+ 
+         var skyBox = new THREE.Mesh( skyGeometry, materialArray );
+         skyBox.position.set(0,cubeSize / 2 - 1 / 2,0);
+         this.scene.add(skyBox);
     },
     /**
      * [{
@@ -462,5 +523,19 @@ DrawText.prototype = {
     },
     refreshText: function () {
         this.createText(this.options.textArr,this.options.fontSize);
+    },
+    isPC: function(){
+        var userAgentInfo = navigator.userAgent;
+        var Agents = ["Android", "iPhone",
+                    "SymbianOS", "Windows Phone",
+                    "iPad", "iPod"];
+        var flag = true;
+        for (var v = 0; v < Agents.length; v++) {
+            if (userAgentInfo.indexOf(Agents[v]) > 0) {
+                flag = false;
+                break;
+            }
+        }
+        return flag;
     }
 }
