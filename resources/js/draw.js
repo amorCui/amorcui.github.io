@@ -406,7 +406,7 @@ DrawText.prototype = {
     initSkyBox: function(){
          //设置天空盒
          var path = "../resources/images/skys/";//设置路径
-         var directions  = ["px", "nx", "py", "ny", "pz", "nz"];//获取对象
+         var directions  = ["px_ys", "nx_ys", "py_ys", "ny_ys", "pz_ys", "nz_ys"];//获取对象
          var format = ".jpg";//格式
          //创建盒子，并设置盒子的大小为( 1000, 1000, 1000 )
          var cubeSize = 1000;
