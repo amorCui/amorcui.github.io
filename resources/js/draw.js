@@ -114,9 +114,9 @@ DrawText.prototype = {
                  //movementX > 0 鼠标向右移动
                 //movementX < 0 鼠标向左移动 
                 if(e.movementX > 0){
-                    this.camera.rotateY(-Math.PI / 180 * 1);
-                }else{
-                    this.camera.rotateY(Math.PI / 180 * 1);
+                    this.camera.rotateY(-Math.PI / 180 * 2);
+                }else if(e.movementX < 0){
+                    this.camera.rotateY(Math.PI / 180 * 2);
                 }
                 this.mouseMoveEventListener = true;
             }
