@@ -6,17 +6,22 @@ function DrawText(options) {
 }
 
 DrawText.prototype = {
+    keyEventListener: true,
+    mouseMoveEventListener: true,
     constructor: DrawText,
     scene: null,
     world:null,
     camera: null,
     renderer: null,
     textMeshs: [],
-    cubes:[],
+    cubes: [],
+    tanks: [],
+    bullets: [],
     ground:null,
     debug:null,
     options: {
-        fontSize:5,
+        fontSize: 5,
+        cubeSize: 2,
         textArr: [
             {
                 text: 'A',
@@ -47,7 +52,7 @@ DrawText.prototype = {
         this.initLight();
 
        
-        // var lights = [];
+        // let lights = [];
         // lights[ 0 ] = new THREE.PointLight( 0xffffff, 1, 0 );
         // lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
         // lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
@@ -58,7 +63,7 @@ DrawText.prototype = {
         // this.scene.add( lights[ 1 ] );
         // this.scene.add( lights[ 2 ] );
 
-        // var ambientLight = new THREE.AmbientLight( 0x000000 );
+        // let ambientLight = new THREE.AmbientLight( 0x000000 );
         // this.scene.add( ambientLight );
 
         //renderer
@@ -75,17 +80,19 @@ DrawText.prototype = {
 
         this.createCube();
 
-        //辅助工具
-        // this.initHelper();
+        this.createTank();
 
-        // var geometry1 = new THREE.BoxGeometry( 2, 1, 1 );
-        // var material1 = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
-        // var cube1 = new THREE.Mesh( geometry1, material1 );
+        //辅助工具
+        this.initHelper();
+
+        // let geometry1 = new THREE.BoxGeometry( 2, 1, 1 );
+        // let material1 = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+        // let cube1 = new THREE.Mesh( geometry1, material1 );
         // this.cubes.add(cube1);
 
-        // var geometry2 = new THREE.BoxGeometry( 1, 2, 1 );
-        // var material2 = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-        // var cube2 = new THREE.Mesh( geometry2, material2 );
+        // let geometry2 = new THREE.BoxGeometry( 1, 2, 1 );
+        // let material2 = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+        // let cube2 = new THREE.Mesh( geometry2, material2 );
         // this.cubes.add(cube2);        
 
 
@@ -100,6 +107,98 @@ DrawText.prototype = {
             //renderer
             this.initRenderer();
 
+        });
+        addEventListener("mousemove",(e)=>{
+            if(this.mouseMoveEventListener){
+                this.mouseMoveEventListener = false;
+                 //movementX > 0 鼠标向右移动
+                //movementX < 0 鼠标向左移动 
+                if(e.movementX > 0){
+                    this.camera.rotateY(-Math.PI / 180 * 1);
+                }else{
+                    this.camera.rotateY(Math.PI / 180 * 1);
+                }
+                this.mouseMoveEventListener = true;
+            }
+           
+        });
+        addEventListener("keyup",(e)=>{
+            if(this.keyEventListener){
+                this.keyEventListener = false;
+                for(let tank of this.tanks){
+                    if(tank.isUser){
+                        if(e.key === "ArrowLeft"){
+                            if(tank.forward === 1){
+                                tank.move();
+                                console.log('前进');
+                            }else if(tank.forward === 0){
+                                tank.rotate(-1);
+                                console.log('左转90度');
+                            }else if(tank.forward === 2){
+                                tank.rotate(1);
+                                console.log('右转90度');
+                            }else if(tank.forward === 3){
+                                tank.rotate(2);
+                                console.log('转180度');
+                            }
+                            tank.forward = 1;
+                            
+                        }
+                        if(e.key === "ArrowRight"){
+                            if(tank.forward === 3){
+                                tank.move();
+                                console.log('前进');
+                            }else if(tank.forward === 0){
+                                tank.rotate(1);
+                                console.log('右转90度');
+                            }else if(tank.forward === 1){
+                                tank.rotate(2);
+                                console.log('转180度');
+                            }else if(tank.forward === 2){
+                                tank.rotate(-1);
+                                console.log('左转90度');
+                            }
+                            tank.forward = 3;
+                        }
+                        if(e.key === "ArrowUp"){
+                            if(tank.forward === 0){
+                                tank.move();
+                                console.log('前进');
+                            }else if(tank.forward === 1){
+                                tank.rotate(1);
+                                console.log('右转90度');
+                            }else if(tank.forward === 2){
+                                tank.rotate(2);
+                                console.log('转180度');
+                            }else if(tank.forward === 3){
+                                tank.rotate(-1);
+                                console.log('左转90度');
+                            }
+                            tank.forward = 0;
+                        }
+                        if(e.key === "ArrowDown"){
+                            if(tank.forward === 2){
+                                tank.move();
+                                console.log('前进');
+                            }else if(tank.forward === 0){
+                                tank.rotate(2);
+                                console.log('转180度');
+                            }else if(tank.forward === 1){
+                                tank.rotate(-1);
+                                console.log('左转90度');
+                            }else if(tank.forward === 3){
+                                tank.rotate(1);
+                                console.log('右转90度');
+                            }
+                            tank.forward = 2;
+                        }
+                        if(e.key === " "){
+                            tank.shoot();
+                        }
+                    }
+                }
+                this.keyEventListener = true;
+            }
         });
     },
     initRenderer: function () {
@@ -176,7 +275,7 @@ DrawText.prototype = {
         this.world.step(1 / 60);
 
         if(this.cubes.length > 0){
-            for(var cube of this.cubes){
+            for(let cube of this.cubes){
                 cube.shape.position.copy(cube.physics.position);
                 cube.shape.quaternion.copy(cube.physics.quaternion);
             }
@@ -190,10 +289,10 @@ DrawText.prototype = {
         this.renderer.render(this.scene, this.camera);
     },
     createCube: function () {
-        var size = 2;
-        var color = 0xCC6633;
-        var offsetZ = 15;
-        var cubepositions= [
+        let size = this.options.cubeSize;
+        let color = 0xCC6633;
+        let offsetZ = 15;
+        let cubepositions= [
             [-1 - 15 ,0 ,0 - offsetZ],
             [0 - 15 ,0 ,0 - offsetZ],
             [1 - 15 ,0 ,0 - offsetZ],
@@ -321,11 +420,11 @@ DrawText.prototype = {
             [3 + 15 ,0 , 6 - offsetZ],
         ];
 
-        for(var pos of cubepositions){
+        for(let pos of cubepositions){
             ////物理
-            var shape = new CANNON.Box(new CANNON.Vec3(size / 2, size / 2 , size / 2)); // 形状
-            var shapeMaterial = new CANNON.Material();  // 材质
-            var shapeBody = new CANNON.Body({ // 刚体
+            let shape = new CANNON.Box(new CANNON.Vec3(size / 2, size / 2 , size / 2)); // 形状
+            let shapeMaterial = new CANNON.Material();  // 材质
+            let shapeBody = new CANNON.Body({ // 刚体
                 mass: 5,    //质量
                 material: shapeMaterial,
                 shape:shape
@@ -336,24 +435,25 @@ DrawText.prototype = {
 
             this.world.add(shapeBody);
 
-            var sphere_ground = new CANNON.ContactMaterial(this.ground.physics.material, shapeMaterial, { //  定义两个刚体相遇后会发生什么
+            let sphere_ground = new CANNON.ContactMaterial(this.ground.physics.material, shapeMaterial, { //  定义两个刚体相遇后会发生什么
                 friction: 1,    // 摩擦系数
                 restitution: 0.4    // 恢复系数
             })
             this.world.addContactMaterial(sphere_ground) // 添加到世界中
 
             //////
-            var geometry = new THREE.CubeGeometry(size,size,size);
+            let geometry = new THREE.CubeGeometry(size,size,size);
             //一种非发光材料
-            var material = new THREE.MeshLambertMaterial({ color: color });
-            var cube = new THREE.Mesh(geometry, material);
+            let material = new THREE.MeshLambertMaterial({ color: color });
+            let cube = new THREE.Mesh(geometry, material);
             //告诉立方体需要投射阴影
             cube.castShadow = true;
             cube.position.set(size * pos[0],size * pos[1], size * pos[2]);
 
             this.cubes.push({
                 shape:cube,
-                physics:shapeBody
+                physics:shapeBody,
+                type: 0 // type :0 ,wall
             });
             
             this.scene.add(cube);
@@ -363,9 +463,9 @@ DrawText.prototype = {
     },
     createPlane:function(){
         //底部物理平面
-        var groundShape = new CANNON.Plane();   // 形状
-        var groundMaterial = new CANNON.Material(); // 材质
-        var groundBody = new CANNON.Body({  // 刚体
+        let groundShape = new CANNON.Plane();   // 形状
+        let groundMaterial = new CANNON.Material(); // 材质
+        let groundBody = new CANNON.Body({  // 刚体
             mass: 0,    // 质量，质量为0时为静态刚体
             shape: groundShape,
             material: groundMaterial 
@@ -377,10 +477,10 @@ DrawText.prototype = {
 
 
         ////底部平面
-        var planeGeometry = new THREE.PlaneGeometry(1000,1000);
-        var planeMaterial = new THREE.MeshStandardMaterial({color:0xaaaaaa});
+        let planeGeometry = new THREE.PlaneGeometry(1000,1000);
+        let planeMaterial = new THREE.MeshStandardMaterial({color:0xaaaaaa});
 
-        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        let plane = new THREE.Mesh(planeGeometry, planeMaterial);
         plane.rotation.set(-Math.PI / 2,0,0);
         plane.position.set(0,-1,0);
 
@@ -403,37 +503,104 @@ DrawText.prototype = {
 
 
     },
+    createTank: function(){
+        let tankPos = [0,0,0];
+        let size = this.options.cubeSize;
+        let tank = new THREE.Group();
+        let color = 0x00ff00;
+
+
+        ////物理
+        let shape = new CANNON.Box(new CANNON.Vec3(size / 2, size / 2 , size / 2)); // 形状
+        let shapeMaterial = new CANNON.Material();  // 材质
+        let shapeBody = new CANNON.Body({ // 刚体
+            mass: 5,    //质量
+            material: shapeMaterial,
+            shape:shape
+        });
+        shapeBody.position.set(size * tankPos[0],size * tankPos[1], size * tankPos[2]);
+
+
+
+        this.world.add(shapeBody);
+
+        let sphere_ground = new CANNON.ContactMaterial(this.ground.physics.material, shapeMaterial, { //  定义两个刚体相遇后会发生什么
+            friction: 1,    // 摩擦系数
+            restitution: 0.4    // 恢复系数
+        })
+        this.world.addContactMaterial(sphere_ground) // 添加到世界中
+
+        //////
+        let tankBaseGeometry = new THREE.CubeGeometry(size, size / 2, size);//基座
+        let tankBatteryGeometry = new THREE.CubeGeometry(size / 2, size / 2, size / 2);//炮台
+        let tankBarrelGeometry = new THREE.CubeGeometry(size / 8, size / 8, size / 2); // 炮筒
+        //一种非发光材料
+        let material = new THREE.MeshLambertMaterial({ color: color });
+
+        let tankBaseCube = new THREE.Mesh(tankBaseGeometry, material);
+        let tankBatteryCube = new  THREE.Mesh(tankBatteryGeometry,material);
+        let tankBarrelCube = new THREE.Mesh(tankBarrelGeometry.material);
+        //告诉立方体需要投射阴影
+        tankBaseCube.castShadow = true;
+        tankBatteryCube.castShadow = true;
+        tankBarrelCube.castShadow = true;
+        tankBaseCube.position.set(size * tankPos[0], size * tankPos[1], size * tankPos[2]);
+        tankBatteryCube.position.set(size * tankPos[0], (size * tankPos[1] + 1 / 2), size * (tankPos[2] + 1 / 4));
+        tankBarrelCube.position.set(size * tankPos[0], (size * tankPos[1] + 1 / 2), size * (tankPos[2] - 1 / 4));
+
+        tank.add(tankBaseCube);
+        tank.add(tankBatteryCube);
+        tank.add(tankBarrelCube);
+        let that = this;
+        this.tanks.push({
+            that:that,
+            forward: 0,//0: 前;1：左;2：后;3：右
+            isUser: true,
+            shape: tank,
+            physics: shapeBody,
+            rotate:function(deg){
+                //-1左，1右，2平角
+                this.shape.rotateY(-Math.PI/2 * deg);
+                this.physics.quaternion.copy(this.shape.quaternion);
+            },
+            shoot: function(){
+
+            },
+            move: function(){
+                this.shape.translateZ(-that.options.cubeSize);
+                this.physics.position.copy(this.shape.position);
+            }
+
+        });
+        
+        this.scene.add(tank);
+
+    },
     initSkyBox: function(){
          //设置天空盒
-         var path = "../resources/images/skys/";//设置路径
-         var directions  = ["px_ys", "nx_ys", "py_ys", "ny_ys", "pz_ys", "nz_ys"];//获取对象
-         var format = ".jpg";//格式
+         let path = "../resources/images/skys/";//设置路径
+         let directions  = ["px_ys", "nx_ys", "py_ys", "ny_ys", "pz_ys", "nz_ys"];//获取对象
+         let format = ".jpg";//格式
          //创建盒子，并设置盒子的大小为( 1000, 1000, 1000 )
-         var cubeSize = 1000;
-         var skyGeometry = new THREE.BoxGeometry( cubeSize, cubeSize, cubeSize );
+         let cubeSize = 1000;
+         let skyGeometry = new THREE.BoxGeometry( cubeSize, cubeSize, cubeSize );
          //设置盒子材质
-         var materialArray = [];
-         // for (var i = 0; i < 6; i++){
+         let materialArray = [];
+         // for (let i = 0; i < 6; i++){
          //     materialArray.push( new THREE.MeshBasicMaterial({
          //         map: new THREE.TextureLoader().load( path + directions[i] + format ),//将图片纹理贴上
          //         side: THREE.BackSide                  //镜像翻转，如果设置镜像翻转，那么只会看到黑漆漆的一片，因为你身处在盒子的内部，所以一定要设置镜像翻转
          //     }));
          // }
         
-         for (var i = 0; i < 5; i++){
+         for (let i = 0; i < 6; i++){
             materialArray.push( new THREE.MeshBasicMaterial({
                  map: new THREE.TextureLoader().load( path + directions[i] + format ),//将图片纹理贴上
                  side: THREE.BackSide                  //镜像翻转，如果设置镜像翻转，那么只会看到黑漆漆的一片，因为你身处在盒子的内部，所以一定要设置镜像翻转
             }));
          }
-         materialArray.push(
-             new THREE.MeshBasicMaterial({
-                 map: new THREE.TextureLoader().load( '../resources/images/timg2.jpg'),//将图片纹理贴上
-                 side: THREE.BackSide                  //镜像翻转，如果设置镜像翻转，那么只会看到黑漆漆的一片，因为你身处在盒子的内部，所以一定要设置镜像翻转
-             })
-         );
  
-         var skyBox = new THREE.Mesh( skyGeometry, materialArray );
+         let skyBox = new THREE.Mesh( skyGeometry, materialArray );
          skyBox.position.set(0,cubeSize / 2 - 1 / 2,0);
          this.scene.add(skyBox);
     },
@@ -451,13 +618,13 @@ DrawText.prototype = {
      */
     createText: function (textOptions,fontSize) {
 
-        var materials = [
+        let materials = [
             new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: true }), // front
             new THREE.MeshPhongMaterial({ color: 0xffffff }) // side
         ];
-        var that = this;
+        let that = this;
         textOptions.map(function ({ text, parameters }, index, array) {
-            var textGeo;
+            let textGeo;
             if (parameters) {
                 textGeo = new THREE.TextGeometry(text, parameters);
             } else {
@@ -474,13 +641,13 @@ DrawText.prototype = {
             textGeo.computeBoundingBox();
             textGeo.computeVertexNormals();
             textGeo = new THREE.BufferGeometry().fromGeometry(textGeo);
-            var textMesh = new THREE.Mesh(textGeo, materials);
+            let textMesh = new THREE.Mesh(textGeo, materials);
             textMesh.position.x = (index - 2) * fontSize;
             textMesh.castShadow = true;
             that.textMeshs.add(textMesh);
         });
         // for( {text,parameters} of textOptions){
-        //     var textGeo;
+        //     let textGeo;
         //     if(parameters){
         //         textGeo = new THREE.TextGeometry( text, parameters);
         //     }else{
@@ -497,13 +664,13 @@ DrawText.prototype = {
         //     textGeo.computeBoundingBox();
         //     textGeo.computeVertexNormals();
         //     textGeo = new THREE.BufferGeometry().fromGeometry( textGeo );
-        //     var textMesh = new THREE.Mesh( textGeo, materials );
+        //     let textMesh = new THREE.Mesh( textGeo, materials );
 
         //     this.textMeshs.add(textMesh);
         // }
     },
     fontLoad: function () {
-        var loader = new THREE.FontLoader();
+        let loader = new THREE.FontLoader();
 
         // Font	Weight	Style	文件路径
         // helvetiker	normal	normal	../../node_modules/three/examples/fonts/helvetiker_regular.typeface.json
@@ -525,12 +692,12 @@ DrawText.prototype = {
         this.createText(this.options.textArr,this.options.fontSize);
     },
     isPC: function(){
-        var userAgentInfo = navigator.userAgent;
-        var Agents = ["Android", "iPhone",
+        let userAgentInfo = navigator.userAgent;
+        let Agents = ["Android", "iPhone",
                     "SymbianOS", "Windows Phone",
                     "iPad", "iPod"];
-        var flag = true;
-        for (var v = 0; v < Agents.length; v++) {
+        let flag = true;
+        for (let v = 0; v < Agents.length; v++) {
             if (userAgentInfo.indexOf(Agents[v]) > 0) {
                 flag = false;
                 break;
