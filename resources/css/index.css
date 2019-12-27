@@ -1,14 +1,16 @@
-:root{
+:root {
     --body-margin: 0;
     --canvas-size: 100%;
     --canvas-bg-color: #ffffff;
 }
 
-body{
-   margin: var(--body-margin);
+body {
+    cursor: none;
+    margin: var(--body-margin);
+
 }
 
-canvas{
+canvas {
     height: var(--canvas-size);
     width: var(--canvas-size);
     /* background-color: var(--canvas-bg-color); */
