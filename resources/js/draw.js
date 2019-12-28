@@ -200,12 +200,20 @@ DrawText.prototype = {
                 this.keyEventListener = true;
             }
         });
+
+        if (window.DeviceMotionEvent) {  
+            addEventListener("devicemotion",(e)=>{
+                console.log(e);
+            });
+        }else{
+            console.log('您的浏览器不支持DeviceMotion');  
+        }
     },
     initRenderer: function () {
         if(!this.renderer){
             this.renderer = new THREE.WebGLRenderer();
             this.renderer.setSize(window.innerWidth, window.innerHeight);
-            //需要阴影
+            //启用阴影
             this.renderer.shadowMap.enabled = true;
             this.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // 默认的是，没有设置的这个清晰 THREE.PCFShadowMap
             document.body.appendChild(this.renderer.domElement);
@@ -236,13 +244,15 @@ DrawText.prototype = {
          * 近平面距离
          * 远平面距离
          */
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+        
         if(this.isPC()){
             console.log("is PC");
-            this.camera.position.set(0, 20, 50);
+            this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+            this.camera.position.set(0, 40, 80);
         }else{
             console.log("is not PC");
-            this.camera.position.set(0, 40, 150);
+            this.camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
+            this.camera.position.set(0, 50, 80);
         }
         // this.camera.lookAt(0,0,0);
         
@@ -252,16 +262,16 @@ DrawText.prototype = {
             this.light = new THREE.DirectionalLight(0xffffff);
             //告诉平行光需要开启阴影投射
             this.light.castShadow = true;
-            this.light.position.set(-5, 10, 5);
+            this.light.position.set(80, 80, -80);
             this.scene.add(this.light);
         }
         
     },
     initHelper:function(){
-        let axisHelper = new THREE.AxisHelper(10);
+        let axesHelper = new THREE.AxesHelper(10);
         let cameraHelper = new THREE.CameraHelper(this.camera);
         // let lightHelper = new THREE.DirectionalLightHelper(0xffffff);
-        this.scene.add(axisHelper);
+        this.scene.add(axesHelper);
         this.scene.add(cameraHelper);
         // this.scene.add(lightHelper);
     },
@@ -431,8 +441,6 @@ DrawText.prototype = {
             });
             shapeBody.position.set(size * pos[0],size * pos[1], size * pos[2]);
 
-
-
             this.world.add(shapeBody);
 
             let sphere_ground = new CANNON.ContactMaterial(this.ground.physics.material, shapeMaterial, { //  定义两个刚体相遇后会发生什么
@@ -458,8 +466,6 @@ DrawText.prototype = {
             
             this.scene.add(cube);
         }
-
-   
     },
     createPlane:function(){
         //底部物理平面
@@ -475,7 +481,6 @@ DrawText.prototype = {
         groundBody.position.set(0,-1,0);
         this.world.add(groundBody)
 
-
         ////底部平面
         let planeGeometry = new THREE.PlaneGeometry(1000,1000);
         let planeMaterial = new THREE.MeshStandardMaterial({color:0xaaaaaa});
@@ -490,24 +495,17 @@ DrawText.prototype = {
         plane.position.copy(groundBody.position);
         plane.quaternion.copy(groundBody.quaternion);
 
-
         this.ground = {
             shape:plane,
             physics:groundBody
         };
-
         this.scene.add(plane);
-
-
-       
-
-
     },
     createTank: function(){
         let tankPos = [0,0,0];
         let size = this.options.cubeSize;
         let tank = new THREE.Group();
-        let color = 0x00ff00;
+        let color = 0xFFCC00;
 
 
         ////物理
@@ -531,22 +529,46 @@ DrawText.prototype = {
         this.world.addContactMaterial(sphere_ground) // 添加到世界中
 
         //////
-        let tankBaseGeometry = new THREE.CubeGeometry(size, size / 2, size);//基座
-        let tankBatteryGeometry = new THREE.CubeGeometry(size / 2, size / 2, size / 2);//炮台
-        let tankBarrelGeometry = new THREE.CubeGeometry(size / 8, size / 8, size / 2); // 炮筒
+        let tankBaseGeometry = new THREE.CubeGeometry(size, size * 3 / 8, size);//基座
+        /**
+         * 圆形
+         * @param 球体半径,default 1
+         * @param 水平分段数,default 8,min 3
+         * @param 垂直分段数,default 6,min 2
+         * @param 指定水平（经线）起始角度，default 0
+         * @param 指定水平（经线）扫描角度的大小，default Math.PI * 2
+         * @param 指定垂直（纬线）起始角度，default 0
+         * @param 指定垂直（纬线）扫描角度大小，default Math.PI
+         */
+        let tankBatteryGeometry = new THREE.SphereGeometry(size / 4, 8, 8, 0, Math.PI * 2, 0, Math.PI * 2);//炮台
+
+        /**
+         * 圆柱体
+         * @param 顶部半径,default 1
+         * @param 底部半径,default 1
+         * @param height,default 1
+         * @param 圆柱周围分段数量,default 8
+         */
+        let tankBarrelGeometry = new THREE.CylinderGeometry(size / 16, size / 16, size * 3 / 4, 16 ); // 炮筒
+
         //一种非发光材料
         let material = new THREE.MeshLambertMaterial({ color: color });
 
         let tankBaseCube = new THREE.Mesh(tankBaseGeometry, material);
-        let tankBatteryCube = new  THREE.Mesh(tankBatteryGeometry,material);
-        let tankBarrelCube = new THREE.Mesh(tankBarrelGeometry.material);
+        let tankBatteryCube = new  THREE.Mesh(tankBatteryGeometry, material);
+        let tankBarrelCube = new THREE.Mesh(tankBarrelGeometry, material);
         //告诉立方体需要投射阴影
         tankBaseCube.castShadow = true;
         tankBatteryCube.castShadow = true;
         tankBarrelCube.castShadow = true;
+
+        //底座需要接收阴影
+        tankBaseCube.receiveShadow = true;
+
         tankBaseCube.position.set(size * tankPos[0], size * tankPos[1], size * tankPos[2]);
         tankBatteryCube.position.set(size * tankPos[0], (size * tankPos[1] + 1 / 2), size * (tankPos[2] + 1 / 4));
-        tankBarrelCube.position.set(size * tankPos[0], (size * tankPos[1] + 1 / 2), size * (tankPos[2] - 1 / 4));
+        tankBarrelCube.position.set(size * tankPos[0], (size * tankPos[1] + 1 / 2), size * (tankPos[2] - 1 / 8));
+        tankBarrelCube.rotateX(Math.PI / 2);
 
         tank.add(tankBaseCube);
         tank.add(tankBatteryCube);
