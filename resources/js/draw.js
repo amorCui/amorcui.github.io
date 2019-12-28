@@ -203,7 +203,7 @@ DrawText.prototype = {
 
         if (window.DeviceMotionEvent) {  
             addEventListener("devicemotion",(e)=>{
-                console.log(e);
+                alert(e);
             });
         }else{
             console.log('您的浏览器不支持DeviceMotion');  
