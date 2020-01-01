@@ -17,8 +17,9 @@ DrawText.prototype = {
     cubes: [],
     tanks: [],
     bullets: [],
-    ground:null,
-    debug:null,
+    ground: null,
+    audio: null,
+    debug: null,
     options: {
         fontSize: 5,
         cubeSize: 2,
@@ -81,6 +82,8 @@ DrawText.prototype = {
         this.createCube();
 
         this.createTank();
+
+        this.initAudio();
 
         //辅助工具
         this.initHelper();
@@ -201,8 +204,12 @@ DrawText.prototype = {
             }
         });
 
+    
         if (window.DeviceMotionEvent) {  
             addEventListener("devicemotion",(e)=>{
+                alert(e);
+            });
+            addEventListener("deviceorientation",(e)=>{
                 alert(e);
             });
         }else{
@@ -266,6 +273,23 @@ DrawText.prototype = {
             this.scene.add(this.light);
         }
         
+    },
+    initAudio: function(){
+        var listener = new THREE.AudioListener();
+        this.camera.add( listener );
+
+        // create a global audio source
+        var sound = new THREE.Audio( listener );
+        sound.autoplay = true;
+
+        // load a sound and set it as the Audio object's buffer
+        var audioLoader = new THREE.AudioLoader();
+        audioLoader.load( '../resources/sounds/il_vento_doro.mp4', function( buffer ) {
+            sound.setBuffer( buffer );
+            sound.setLoop( true );
+            sound.setVolume( 0.5 );
+            sound.play();
+        });
     },
     initHelper:function(){
         let axesHelper = new THREE.AxesHelper(10);
@@ -430,10 +454,22 @@ DrawText.prototype = {
             [3 + 15 ,0 , 6 - offsetZ],
         ];
 
+        let shapeMaterial = new CANNON.Material();  // 材质
+         //一种非发光材料
+        // let material = new THREE.MeshLambertMaterial({ color: color });
+        let material = [];
+        for (let i = 0; i < 6; i++){
+            material.push( new THREE.MeshBasicMaterial({
+                 map: new THREE.TextureLoader().load( '../resources/images/crate.gif' )//将图片纹理贴上
+            }));
+        }
+
+
+
         for(let pos of cubepositions){
             ////物理
             let shape = new CANNON.Box(new CANNON.Vec3(size / 2, size / 2 , size / 2)); // 形状
-            let shapeMaterial = new CANNON.Material();  // 材质
+            // let shapeMaterial = new CANNON.Material();  // 材质
             let shapeBody = new CANNON.Body({ // 刚体
                 mass: 5,    //质量
                 material: shapeMaterial,
@@ -451,8 +487,8 @@ DrawText.prototype = {
 
             //////
             let geometry = new THREE.CubeGeometry(size,size,size);
-            //一种非发光材料
-            let material = new THREE.MeshLambertMaterial({ color: color });
+            // //一种非发光材料
+            // let material = new THREE.MeshLambertMaterial({ color: color });
             let cube = new THREE.Mesh(geometry, material);
             //告诉立方体需要投射阴影
             cube.castShadow = true;
@@ -507,7 +543,6 @@ DrawText.prototype = {
         let tank = new THREE.Group();
         let color = 0xFFCC00;
 
-
         ////物理
         let shape = new CANNON.Box(new CANNON.Vec3(size / 2, size / 2 , size / 2)); // 形状
         let shapeMaterial = new CANNON.Material();  // 材质
@@ -517,8 +552,6 @@ DrawText.prototype = {
             shape:shape
         });
         shapeBody.position.set(size * tankPos[0],size * tankPos[1], size * tankPos[2]);
-
-
 
         this.world.add(shapeBody);
 
@@ -616,10 +649,17 @@ DrawText.prototype = {
          // }
         
          for (let i = 0; i < 6; i++){
-            materialArray.push( new THREE.MeshBasicMaterial({
-                 map: new THREE.TextureLoader().load( path + directions[i] + format ),//将图片纹理贴上
-                 side: THREE.BackSide                  //镜像翻转，如果设置镜像翻转，那么只会看到黑漆漆的一片，因为你身处在盒子的内部，所以一定要设置镜像翻转
-            }));
+            var texture = new THREE.TextureLoader().load( path + directions[i] + format );
+            if(i === 3){
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set( 256, 256 );
+            }
+            var material =  new THREE.MeshBasicMaterial({
+                map: texture,                         //将图片纹理贴上
+                side: THREE.BackSide                  //镜像翻转，如果设置镜像翻转，那么只会看到黑漆漆的一片，因为你身处在盒子的内部，所以一定要设置镜像翻转
+           });
+            materialArray.push( material );
          }
  
          let skyBox = new THREE.Mesh( skyGeometry, materialArray );
