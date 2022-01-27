@@ -20,7 +20,7 @@
     "cannon": "^0.6.2",
     "grunt": "^1.0.4",
     "physijs-webpack": "^0.1.4",
-    "three": "^0.111.0",
+    "three": "^0.137.0",
     "three.js": "^0.77.1"
   }
 }
